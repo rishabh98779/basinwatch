@@ -1,0 +1,48 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Persistence Architecture
+skinparam componentStyle rectangle
+[BasinEngine] as ENG
+[OperationalJournal\nBufferedWriter UTF-8] as J
+[ArchiveWorker\nDataOutputStream] as A
+[SnapshotStore\nObjectOutputStream] as S
+[ReportWriter\nBufferedWriter UTF-8] as R
+[DatabaseService\nJDBC single thread] as D
+database "operations.log" as F1
+database "sensors.bin\n(MAGIC 0x42574152 v1)" as F2
+database "*.bws\n(temp -> ATOMIC_MOVE)" as F3
+database "*.txt reports" as F4
+database "basinwatch.db\nSQLite (4 tables)" as F5
+ENG --> J
+ENG --> A
+ENG --> S
+ENG --> R
+ENG --> D
+J --> F1
+A --> F2
+S --> F3
+R --> F4
+D --> F5
+note bottom of F3
+  5 MB limit; ObjectInputFilter
+  allowlist on load.
+end note
+@enduml

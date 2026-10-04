@@ -1,0 +1,67 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title BasinWatch High-Level System Architecture
+skinparam componentStyle rectangle
+package "Presentation layer (Swing, EDT-owned)" {
+  [MainFrame]
+  [BasinMapPanel]
+  [DatabaseHistoryPanel]
+}
+package "Application / Engine layer" {
+  [BasinEngine]
+  [SensorFeed]
+  [SensorIntake]
+  [EventBuffer]
+  [ResponseWorker]
+  [ArchiveWorker]
+  [SimulationSettings]
+}
+package "Domain layer (aggregate + values)" {
+  [BasinModel]
+  [BasinZone]
+  [ResourceAllocator]
+  [ResponseMission]
+  [BasinEvent <<interface>>]
+}
+package "Persistence layer" {
+  [OperationalJournal]
+  [SensorArchive]
+  [SnapshotStore]
+  [ReportWriter]
+  [DatabaseService]
+}
+[MainFrame] --> [BasinEngine] : listens to snapshots
+[BasinEngine] --> [BasinModel] : owns / processes
+[BasinEngine] --> [EventBuffer]
+[BasinEngine] --> [SensorFeed]
+[BasinEngine] --> [SensorIntake]
+[BasinEngine] --> [ResponseWorker]
+[BasinEngine] --> [ArchiveWorker]
+[BasinEngine] --> [OperationalJournal]
+[BasinEngine] --> [SnapshotStore]
+[BasinEngine] --> [ReportWriter]
+[BasinEngine] --> [DatabaseService]
+[BasinModel] --> [BasinZone]
+[BasinModel] --> [ResourceAllocator]
+[BasinModel] --> [ResponseMission]
+[BasinModel] ..> [BasinEvent]
+[ResponseWorker] ..> [BasinModel]
+@enduml

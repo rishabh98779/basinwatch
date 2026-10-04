@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Java Thread Lifecycle as Used by BasinWatch
+skinparam stateBackgroundColor #F4F9F9
+skinparam stateBorderColor #1F5C6B
+[*] --> NEW : new Thread(...)
+NEW --> RUNNABLE : start()
+RUNNABLE --> BLOCKED : waiting to enter synchronized
+BLOCKED --> RUNNABLE : monitor acquired
+RUNNABLE --> WAITING : wait() on EventBuffer
+WAITING --> RUNNABLE : notifyAll() / interrupt()
+RUNNABLE --> TIMED_WAITING : Thread.sleep(intervalMillis)
+TIMED_WAITING --> RUNNABLE : delay elapsed / interrupt
+RUNNABLE --> TERMINATED : run() returns
+note right of WAITING
+  Java reports RUNNABLE, not a
+  separate RUNNING state.
+  wait() releases the monitor;
+  sleep() does not.
+end note
+@enduml

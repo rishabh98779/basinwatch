@@ -1,0 +1,51 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Atomic Resource Reservation
+skinparam activityDiamondBackgroundColor #FFF3CD
+start
+:DispatchRequest for (zone, missionType);
+:validateRequest(requirements);
+if (all required units available?) then (no)
+  :return false (typed rejection);
+  :record RESOURCE LIMIT;
+  stop
+else (yes)
+  :decrement every required type;
+  :return true;
+  :create ResponseMission (ACTIVE);
+  :record UNIT ALLOCATED;
+endif
+:Mission advances on each SimulationPulse;
+if (progressTicks == durationTicks?) then (yes)
+  :status = COMPLETED;
+  :resources.release(requirements);
+  :record MISSION COMPLETE;
+else (no)
+  :remain ACTIVE;
+endif
+stop
+note right
+  tryReserve/release are synchronized:
+  check-and-decrement is all-or-nothing,
+  so two dispatches cannot claim the
+  same final unit.
+end note
+@enduml

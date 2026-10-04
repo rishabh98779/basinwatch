@@ -1,0 +1,60 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title OOP Concept Mapping to BasinWatch Components
+skinparam componentStyle rectangle
+package "OOP / Java concept" {
+  [Encapsulation] as C1
+  [Abstraction] as C2
+  [Inheritance] as C3
+  [Polymorphism] as C4
+  [Composition] as C5
+  [Enums & Immutability] as C6
+  [Exceptions] as C7
+  [Threads & Monitors] as C8
+  [Producer-Consumer] as C9
+  [Serialization] as C10
+  [JDBC] as C11
+}
+package "BasinWatch component" {
+  [domain/BasinZone, ResourceAllocator] as P1
+  [domain/BasinEvent] as P2
+  [engine/SensorFeed, app/MainFrame] as P3
+  [domain/BasinModel.process] as P4
+  [domain/BasinModel, engine/BasinEngine] as P5
+  [domain/* enums, *Snapshot records] as P6
+  [domain/*, io/*, db/*] as P7
+  [engine/EventBuffer, ResourceAllocator] as P8
+  [engine/EventBuffer] as P9
+  [io/SessionSnapshot, SnapshotStore] as P10
+  [db/* repositories] as P11
+}
+C1 --> P1
+C2 --> P2
+C3 --> P3
+C4 --> P4
+C5 --> P5
+C6 --> P6
+C7 --> P7
+C8 --> P8
+C9 --> P9
+C10 --> P10
+C11 --> P11
+@enduml

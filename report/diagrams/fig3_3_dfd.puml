@@ -1,0 +1,47 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Data-Flow Diagram (Level 1)
+skinparam componentStyle rectangle
+actor Operator as OP
+rectangle "1.0\nSensor emission" as P1
+rectangle "2.0\nIntake & validation" as P2
+rectangle "3.0\nEvent buffering" as P3
+rectangle "4.0\nResponse processing\n(model + resources)" as P4
+rectangle "5.0\nSnapshot publishing\n(EDT)" as P5
+rectangle "6.0\nPersistence\n(files + SQLite)" as P6
+database "D1 Event buffer" as D1
+database "D2 Operational journal" as D2
+database "D3 Sensor archive" as D3
+database "D4 Session saves" as D4
+database "D5 SQLite history" as D5
+OP --> P1 : start/step
+P1 --> P2 : encoded readings
+P2 --> P3 : validated events
+P3 --> P4 : accepted events
+P4 --> P5 : immutable snapshot
+P5 --> OP : updated console
+P4 --> P6
+P6 --> D2
+P6 --> D3
+P6 --> D4
+P6 --> D5
+P3 --> D1
+@enduml

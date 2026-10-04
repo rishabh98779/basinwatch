@@ -1,0 +1,43 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Thread and Concurrency Map
+skinparam componentStyle rectangle
+rectangle "Swing Event Dispatch Thread (EDT)" as EDT
+rectangle "basin-sensor-feed (Thread)" as FEED
+rectangle "basin-sensor-intake (Runnable on Thread)" as INTAKE
+rectangle "basin-response-1..3 (Runnable on Threads)" as WK
+rectangle "basin-sensor-archive (Thread)" as ARC
+rectangle "basin-control (daemon ExecutorService)" as CTRL
+rectangle "basin-database (daemon ThreadPoolExecutor, 1 thread)" as DB
+EDT --> CTRL : submits start/pause/save/load/report
+CTRL --> FEED : startFeed()
+FEED --> INTAKE : PipedWriter -> PipedReader
+INTAKE --> WK : EventBuffer (bounded, monitor)
+WK --> EDT : immutable snapshot via invokeLater
+WK --> ARC : submit(SensorReading)
+WK --> DB : enqueue immutable records
+note right of WK
+  wait()/notifyAll() coordinate
+  buffer emptiness/fullness.
+  ResourceAllocator uses one
+  short synchronized monitor.
+end note
+@enduml

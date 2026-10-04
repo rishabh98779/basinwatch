@@ -1,0 +1,35 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Bounded Producer-Consumer Event Buffer
+skinparam componentStyle rectangle
+rectangle "Producer: SensorIntake" as P
+queue "EventBuffer (capacity 96)\nArrayDeque + intrinsic monitor" as Q
+rectangle "Consumers: ResponseWorker x3" as C
+P --> Q : put(event)\nwait() while full
+Q --> C : take()\nwait() while empty
+Q --> Q : notifyAll() after add/remove/close
+note bottom of Q
+  close() sets closed=true and notifyAll();
+  waiters re-check the condition in a while loop,
+  so a closed buffer drains accepted work then
+  returns null (end of stream).
+end note
+@enduml

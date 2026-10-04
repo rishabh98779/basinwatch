@@ -1,0 +1,48 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title BasinWatch Use-Case Diagram
+left to right direction
+actor Operator as OP
+rectangle BasinWatch {
+  usecase "Start / pause\nobservations" as UC1
+  usecase "Advance one\ninterval" as UC2
+  usecase "Inject storm\ncell" as UC3
+  usecase "Select a\nbasin zone" as UC4
+  usecase "Dispatch a\nresponse mission" as UC5
+  usecase "Review active\noperations" as UC6
+  usecase "Inspect background\nactivity" as UC7
+  usecase "Save / restore\nsession" as UC8
+  usecase "Export situation\nreport" as UC9
+  usecase "View database\nhistory" as UC10
+}
+OP --> UC1
+OP --> UC2
+OP --> UC3
+OP --> UC4
+OP --> UC5
+OP --> UC6
+OP --> UC7
+OP --> UC8
+OP --> UC9
+OP --> UC10
+UC5 ..> UC4 : <<include>>
+UC8 ..> UC6 : <<include>>
+@enduml

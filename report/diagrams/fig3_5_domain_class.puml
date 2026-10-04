@@ -1,0 +1,86 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Domain Class Diagram
+skinparam classAttributeIconSize 0
+interface BasinEvent {
+  +tick() : long
+  +zoneId() : String
+  +category() : String
+  +describe() : String
+}
+class SensorReading <<record>>
+class SimulationPulse <<record>>
+class DispatchRequest <<record>>
+class BasinModel {
+  -zones : LinkedHashMap
+  -missions : LinkedHashMap
+  -activity : ArrayDeque
+  -resources : ResourceAllocator
+  +process(BasinEvent) : List
+  +snapshot() : BasinSnapshot
+  +{static} restore(BasinSnapshot) : BasinModel
+}
+class BasinZone {
+  -waterLevelMeters : double
+  -risk : RiskLevel
+  +apply(SensorReading) : boolean
+  +pump(double)
+  +reinforceLevee()
+  +evacuate()
+  +snapshot() : ZoneSnapshot
+}
+class ResourceAllocator {
+  -available : EnumMap
+  -capacity : EnumMap
+  +tryReserve(Map) : boolean
+  +release(Map)
+  +snapshot() : Map
+}
+class ResponseMission {
+  -id : String
+  -type : MissionType
+  -status : MissionStatus
+  +advance() : boolean
+  +snapshot() : MissionSnapshot
+}
+enum ResourceType
+enum MissionType
+enum MissionStatus
+enum RiskLevel
+class ZoneSnapshot <<record>>
+class MissionSnapshot <<record>>
+class BasinSnapshot <<record>>
+class ActivityEntry <<record>>
+BasinEvent <|.. SensorReading
+BasinEvent <|.. SimulationPulse
+BasinEvent <|.. DispatchRequest
+BasinModel "1" *-- "6" BasinZone : zones
+BasinModel "1" *-- "0..500" ResponseMission : missions
+BasinModel "1" *-- "1" ResourceAllocator : resources
+BasinModel "1" o-- "*" ActivityEntry : activity
+ResponseMission --> MissionType
+ResponseMission --> MissionStatus
+BasinZone --> RiskLevel
+ResourceAllocator --> ResourceType
+BasinModel ..> BasinSnapshot : returns
+BasinSnapshot *-- ZoneSnapshot
+BasinSnapshot *-- MissionSnapshot
+@enduml

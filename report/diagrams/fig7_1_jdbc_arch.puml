@@ -1,0 +1,48 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title JDBC Architecture
+skinparam componentStyle rectangle
+[BasinWatch simulation\n(engine + workers)] as SIM
+[DatabaseService\nsingle-thread executor\nqueue 2048, AbortPolicy] as SVC
+[SensorReadingRepository] as R1
+[MissionRepository\ntransactions] as R2
+[ResourceUsageRepository] as R3
+[OperationalEventRepository] as R4
+[DatabaseManager\nConnection, PRAGMAs] as MGR
+[DatabaseInitializer\nCREATE TABLE/INDEX] as INIT
+database "SQLite basinwatch.db" as DB
+[SIM] --> [SVC] : enqueue immutable values
+[SVC] --> R1
+[SVC] --> R2
+[SVC] --> R3
+[SVC] --> R4
+R1 --> MGR
+R2 --> MGR
+R3 --> MGR
+R4 --> MGR
+MGR --> DB
+INIT --> DB
+note bottom of DB
+  Embedded, offline, no server.
+  SQLException is reported and isolated;
+  the simulation and file persistence continue.
+end note
+@enduml

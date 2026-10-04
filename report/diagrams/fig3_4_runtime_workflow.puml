@@ -1,0 +1,53 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title BasinWatch Runtime Workflow
+skinparam componentStyle rectangle
+[Operator] as OP
+[Operations console\n(MainFrame, EDT)] as UI
+[SensorFeed\nThread basin-sensor-feed] as FEED
+[PipedWriter] as PW
+[PipedReader +\nBufferedReader] as PR
+[SensorIntake\nRunnable basin-sensor-intake] as INTAKE
+[EventBuffer\ncapacity 96\nwait()/notifyAll()] as BUF
+[ResponseWorker x3\nbasin-response-1..3] as WK
+[BasinModel.process\nsynchronized] as MODEL
+[ResourceAllocator\ntryReserve / release] as RES
+[ResponseMission\nprogress on pulse] as MIS
+[Immutable BasinSnapshot] as SNAP
+[OperationalJournal] as J
+[ArchiveWorker ->\nsensors.bin] as ARC
+[DatabaseService ->\nSQLite] as DB
+OP --> UI
+UI --> FEED : start / pause
+FEED --> PW : write encoded record
+PW --> PR
+PR --> INTAKE
+INTAKE --> BUF : put (waits if full)
+BUF --> WK : take (waits if empty)
+WK --> MODEL
+MODEL --> RES
+MODEL --> MIS
+MODEL --> SNAP
+SNAP --> UI : invokeLater
+WK --> J
+WK --> ARC
+WK --> DB
+@enduml

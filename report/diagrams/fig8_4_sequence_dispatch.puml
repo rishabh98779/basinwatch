@@ -1,0 +1,51 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Sequence Diagram - Resource Dispatch and Mission Completion
+skinparam sequenceMessageAlign center
+actor Operator as OP
+participant "MainFrame\n(EDT)" as UI
+participant "BasinEngine" as ENG
+participant "EventBuffer" as BUF
+participant "ResponseWorker" as WK
+participant "BasinModel" as MODEL
+participant "ResourceAllocator" as RES
+participant "DatabaseService" as DB
+OP -> UI : choose zone + mission, click Dispatch
+UI -> ENG : dispatch(zoneId, missionType)
+ENG -> BUF : offerAll(DispatchRequest)
+BUF -> WK : take()
+WK -> MODEL : process(DispatchRequest)
+MODEL -> RES : tryReserve(requirements)
+alt units unavailable
+  RES --> MODEL : false
+  MODEL --> WK : "Insufficient available units"
+else units available
+  RES --> MODEL : true (decremented)
+  MODEL -> MODEL : new ResponseMission ACTIVE
+  WK -> DB : recordDispatch (transaction)
+end
+WK -> UI : snapshot (inventory + mission list)
+note over MODEL, RES
+  Each SimulationPulse advances ACTIVE missions;
+  on completion, requirements are released back
+  to the allocator and completion is persisted.
+end note
+@enduml

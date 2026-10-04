@@ -1,0 +1,35 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Application Lifecycle
+skinparam stateBackgroundColor #F4F9F9
+skinparam stateBorderColor #1F5C6B
+[*] --> Starting : main() -> invokeLater
+Starting --> Restoring : last-session.bws exists?
+Restoring --> Ready : restore OK / user starts fresh
+Ready --> Running : start() -> feed + intake + 3 workers
+Running --> Paused : pause() -> stopFeed()
+Paused --> Running : resume
+Running --> Running : dispatch / step / inject storm / save / report
+Running --> Closing : window close -> closeAsync()
+Closing --> Closing : stopFeed, close buffer, join workers,\ndrain archive, close DB
+Closing --> Saved : write last-session.bws
+Saved --> [*] : journal close, EDT dispose
+@enduml

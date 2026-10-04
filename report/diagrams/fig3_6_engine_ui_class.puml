@@ -1,0 +1,86 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Engine and UI Class Diagram
+skinparam classAttributeIconSize 0
+class BasinEngine <<AutoCloseable>> {
+  -eventBuffer : EventBuffer
+  -settings : SimulationSettings
+  -databaseService : DatabaseService
+  -responseThreads : List<Thread>
+  +start() : CompletableFuture
+  +pause() : CompletableFuture
+  +dispatch(String, MissionType) : boolean
+  +save(Path) / load(Path)
+  +exportReport() : CompletableFuture<Path>
+  +closeAsync()
+}
+class EventBuffer {
+  -events : ArrayDeque
+  -capacity : int
+  +put(BasinEvent) : boolean
+  +take() : BasinEvent
+  +close()
+}
+class SensorFeed <<Thread>> {
+  +run()
+  +requestStop()
+}
+class SensorIntake <<Runnable>> {
+  +run()
+}
+class ResponseWorker <<Runnable>> {
+  +run()
+}
+class ArchiveWorker <<Thread>> {
+  +submit(SensorReading)
+  +finish()
+}
+class SimulationSettings
+class DatabaseService
+class MainFrame <<JFrame>> {
+  +updateSnapshot(BasinSnapshot)
+  +refreshDiagnostics()
+}
+class BasinMapPanel <<JPanel>> {
+  #paintComponent(Graphics)
+}
+class DatabaseHistoryPanel <<JPanel>>
+class OperationalJournal
+class SnapshotStore
+class SensorArchive
+class ReportWriter
+BasinEngine *-- EventBuffer
+BasinEngine *-- SimulationSettings
+BasinEngine *-- DatabaseService
+BasinEngine *-- SensorFeed
+BasinEngine *-- SensorIntake
+BasinEngine *-- ArchiveWorker
+BasinEngine *-- "3" ResponseWorker
+BasinEngine --> OperationalJournal
+BasinEngine --> SnapshotStore
+BasinEngine --> SensorArchive
+BasinEngine --> ReportWriter
+MainFrame --> BasinEngine : snapshot/status listeners
+MainFrame *-- BasinMapPanel
+MainFrame ..> DatabaseHistoryPanel
+SensorFeed ..> EventBuffer : via pipe+intake
+ResponseWorker ..> EventBuffer
+@enduml

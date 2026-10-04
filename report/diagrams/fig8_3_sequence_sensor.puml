@@ -1,0 +1,49 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Sequence Diagram - Sensor / Event Pipeline
+skinparam sequenceMessageAlign center
+participant "SensorFeed\n(Thread)" as FEED
+participant "PipedWriter/\nReader" as PIPE
+participant "SensorIntake\n(Runnable)" as INTAKE
+participant "EventBuffer\n(96)" as BUF
+participant "ResponseWorker" as WK
+participant "BasinModel" as MODEL
+participant "EDT / UI" as UI
+loop every intervalMillis (default 1500 ms)
+  FEED -> FEED : tickSequence.incrementAndGet()
+  FEED -> PIPE : write(reading.encode()) + '\n'
+  FEED -> PIPE : write("PULSE|" + tick)
+  PIPE -> INTAKE : readLine()
+  INTAKE -> INTAKE : SensorReading.parse / SimulationPulse
+  alt malformed
+    INTAKE -> INTAKE : report warning, discard
+  else valid
+    INTAKE -> BUF : put(event)
+    BUF -> BUF : wait() if full
+    WK -> BUF : take()
+    BUF -> BUF : wait() if empty; notifyAll()
+    WK -> MODEL : process(event) [synchronized]
+    MODEL -> MODEL : applyReading / applyPulse / applyDispatch
+    WK -> UI : invokeLater(immutable snapshot)
+    WK -> BUF : complete()
+  end
+end
+@enduml

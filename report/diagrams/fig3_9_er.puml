@@ -1,0 +1,58 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title SQLite Database ER Diagram
+skinparam classAttributeIconSize 0
+entity "sensor_readings" as SR {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  zone : TEXT
+  water_level : REAL
+  rainfall : REAL
+  risk_level : TEXT
+}
+entity "missions" as MI {
+  * id : TEXT <<PK>>
+  --
+  mission_type : TEXT
+  zone : TEXT
+  status : TEXT
+  created_at : TEXT
+  completed_at : TEXT
+}
+entity "resource_usage" as RU {
+  * id : INTEGER <<PK>>
+  --
+  resource_type : TEXT
+  amount : INTEGER
+  mission_id : TEXT <<FK>>
+  timestamp : TEXT
+}
+entity "operational_events" as OE {
+  * id : INTEGER <<PK>>
+  --
+  timestamp : TEXT
+  event_type : TEXT
+  zone : TEXT
+  message : TEXT
+}
+MI ||--o{ RU : "mission_id references id"
+@enduml

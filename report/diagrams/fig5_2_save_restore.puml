@@ -1,0 +1,45 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Session Save and Restore Flow
+skinparam activityDiamondBackgroundColor #FFF3CD
+start
+:Operator selects "Save session";
+:BasinEngine.save(path);
+:stopFeed() if observations are live;
+:awaitQuiescent() - drain accepted events;
+:SessionSnapshot.from(snapshot) - validate via BasinModel.restore;
+:encode() to ByteArrayOutputStream (ObjectOutputStream);
+if (payload > 5 MB?) then (yes)
+  :IOException - session too large;
+  stop
+else (no)
+  :write to temporary file;
+  :Files.move ATOMIC_MOVE (fallback REPLACE_EXISTING);
+  :resume feed if it was running;
+  :status "Session saved";
+endif
+:On relaunch: SnapshotStore.load(path);
+:size check, ObjectInputFilter allowlist;
+:readObject -> SessionSnapshot;
+:version + domain invariant checks;
+:BasinModel.restore -> fresh runtime primitives;
+stop
+@enduml

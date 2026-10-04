@@ -1,0 +1,49 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+skinparam rectangleBackgroundColor #F7FAFC
+skinparam rectangleBorderColor #2B5876
+skinparam rectangleFontColor #16324F
+skinparam componentBackgroundColor #EAF2F8
+skinparam componentBorderColor #2B5876
+skinparam databaseBackgroundColor #FDECEA
+skinparam databaseBorderColor #A93226
+skinparam classBackgroundColor #F4F9F9
+skinparam classBorderColor #1F5C6B
+skinparam classFontColor #123B47
+skinparam actorBackgroundColor #FFF7E6
+skinparam actorBorderColor #B7791F
+skinparam noteBackgroundColor #FFFDF0
+skinparam noteBorderColor #C9A227
+skinparam arrowColor #33566B
+
+title Activity Diagram - Operator Workflow
+skinparam activityDiamondBackgroundColor #FFF3CD
+start
+:Launch BasinWatch;
+if (last-session.bws exists?) then (yes)
+  :Restore previous session;
+else (no)
+  :Start fresh scenario (6 zones);
+endif
+:Start observations (or Advance one interval);
+:Read basin map risk colours;
+if (a zone shows elevated risk?) then (yes)
+  :Select the zone;
+  :Review water level, rain, exposure, stock;
+  :Choose a mission type;
+  :Dispatch response (atomic reservation);
+  if (reservation accepted?) then (no)
+    :See RESOURCE LIMIT message;
+  else (yes)
+    :Follow mission progress in Operations tab;
+  endif
+else (no)
+  :Monitor observations;
+endif
+:Inspect background activity / database history (optional);
+:Export situation report;
+:Save session / close cleanly (auto-save last-session.bws);
+stop
+@enduml
